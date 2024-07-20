@@ -4,12 +4,15 @@ from langchain_community.embeddings import OctoAIEmbeddings
 from langchain_community.llms.octoai_endpoint import OctoAIEndpoint
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
+import speech_recognition as sr
 
 from dotenv import load_dotenv
 import os
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter, HTMLHeaderTextSplitter
 from langchain.vectorstores import FAISS
+
+import warnings
 
 load_dotenv()
 OCTOAI_API_TOKEN = os.environ["OCTOAI_API_TOKEN"]
@@ -23,12 +26,19 @@ class Person:
     _template = None
     _prompt = None
     _retriever = None
-    _history = None 
+    _history = None
+    _r = None
+    _mic = None
 
     def __init__(self, country: str, name: str, age: int):
+        warnings.filterwarnings("ignore")
         self.set_parameters(country)
         self._name = name
         self._age = age
+
+        self._r = sr.Recognizer()
+
+        self._mic = sr.Microphone()
 
         self._llm = OctoAIEndpoint(
             model="meta-llama-3-70b-instruct",
@@ -76,6 +86,14 @@ class Person:
             | self._llm
             | StrOutputParser()
         )
+
+        with self._mic as source:
+            self._r.adjust_for_ambient_noise(source)
+            print("listening")
+            audio = self._r.listen(source)
+            print("done")
+
+            user_input = self._r.recognize_google(audio)
 
         response = chain.invoke(user_input).strip()
 

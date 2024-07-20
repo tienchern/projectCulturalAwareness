@@ -5,6 +5,7 @@ people: dict[str: Person]= dict()
 
 
 def main():
+    warnings.filterwarnings("ignore")
 
     continue_program = True
     print("\n" * 100)
