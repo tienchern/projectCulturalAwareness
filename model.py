@@ -62,7 +62,7 @@ class Person:
         return chain.invoke(user_input)
     
 def get_context(country: str):
-    url = "https://en.wikipedia.org/wiki/Star_Wars"
+    url = "https://en.wikipedia.org/wiki/Culture_of_" + country
 
     headers_to_split_on = [
         ("h1", "Header 1"),
