@@ -46,12 +46,17 @@ class Person:
 
         self._retriever = get_context(self._country)
         self._template = """You are a person called {name} from the different culture of {country}. You are {age} years old. You are interacting with the user to teach them about your culture. Be friendly and open, using the provided context as information about your culture. Additionally, the user may reference earlier conversations so use the provided messages as information about earlier conversations.
-        Question: {question}
-        Context: {context}"""
+        Context about {country}: {context}
+        
+        Continue this conversation:"""
 
         self._prompt = ChatPromptTemplate.from_messages([
             ("system", self._template),
             MessagesPlaceholder(variable_name="messages"),
+            """
+            Human: {question}
+            AI:
+            """
         ])
 
     def say_hi(self) -> str:
@@ -69,10 +74,12 @@ class Person:
             | self._llm
             | StrOutputParser()
         )
-        response = chain.invoke(user_input)
+
+        response = chain.invoke(user_input).strip()
+
         self._history.add_user_message(user_input)
         self._history.add_ai_message(response)
-
+        
         return response
     
 def get_context(country: str):

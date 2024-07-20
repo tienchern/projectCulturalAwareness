@@ -50,12 +50,11 @@ def chat(person: Person):
     print("Type 'exit' to return to dashboard")
     print(person.say_hi())
 
-    while continue_chat:
+    user_input = input("Enter: ")
+
+    while user_input != "exit":
+        print(person.respond(user_input.strip()), flush=True)
         user_input = input("Enter: ")
-        if user_input == "exit":
-            continue_chat = False
-        else:
-            print(person.respond(user_input))
     
 
 
