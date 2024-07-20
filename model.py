@@ -48,10 +48,10 @@ class Person:
 
     def respond(self, user_input: str) -> str:
         chain = (
-        {"question": RunnablePassthrough(), "country": self._country, "age":25, "context": "blank"}
+        {"question": RunnablePassthrough(), "country": lambda x: self._country, "context": lambda x: "blank", "age": lambda x: "25"}
         | self._prompt
         | self._llm
         | StrOutputParser()
         )
 
-        print(chain.invoke(user_input)) 
+        return chain.invoke(user_input)
