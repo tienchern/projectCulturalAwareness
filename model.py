@@ -14,6 +14,7 @@ load_dotenv()
 OCTOAI_API_TOKEN = os.environ["OCTOAI_API_TOKEN"]
 
 class Person:
+    _age = None
     _country = None
     _name = None
     _model = None
@@ -22,9 +23,10 @@ class Person:
     _prompt = None
     _retriever = None
 
-    def __init__(self, country: str, name: str):
+    def __init__(self, country: str, name: str, age: int):
         self.set_parameters(country)
         self._name = name
+        self._age = age
 
         self._llm = OctoAIEndpoint(
         model="meta-llama-3-70b-instruct",
@@ -53,7 +55,7 @@ class Person:
 
     def respond(self, user_input: str) -> str:
         chain = (
-        {"question": RunnablePassthrough(), "name": lambda x: self._name, "country": lambda x: self._country, "context": self._retriever, "age": lambda x: "25"}
+        {"question": RunnablePassthrough(), "name": lambda x: self._name, "country": lambda x: self._country, "context": self._retriever, "age": lambda x: self._age}
         | self._prompt
         | self._llm
         | StrOutputParser()

@@ -15,7 +15,7 @@ def main():
         print(f"""Your options are:
                 \t* quit - terminate the program
                 \t* delete [name] - delete person
-                \t* create [country] [name] - create person
+                \t* create [name] [country] [age] - create person
                 \t* chat [name] - chat with person
             """)
         user_input = input("Enter: ")
@@ -34,8 +34,8 @@ def main():
 
             case [action, *objects]:
                 if action == "create":
-                    new_person = Person(country=objects[0], name=objects[1])
-                    people[objects[1]] = new_person
+                    new_person = Person(country=objects[1], name=objects[0], age=objects[2])
+                    people[objects[0]] = new_person
 
             case _:
                 print("Command not recognized")
