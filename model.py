@@ -37,7 +37,7 @@ class Person:
     def set_parameters(self, country: str):
         self._country = country
 
-        self._template = """You are a person from the different culture of {country}. You are {age} years old. You are interacting with the user to teach them about your culture. Be friendly and open, using the provided context as information about your culture.
+        self._template = """You are a person called {name} from the different culture of {country}. You are {age} years old. You are interacting with the user to teach them about your culture. Be friendly and open, using the provided context as information about your culture.
         Question: {question}
         Context: {context}
         Answer:"""
@@ -48,7 +48,7 @@ class Person:
 
     def respond(self, user_input: str) -> str:
         chain = (
-        {"question": RunnablePassthrough(), "country": lambda x: self._country, "context": lambda x: "blank", "age": lambda x: "25"}
+        {"question": RunnablePassthrough(), "name": lambda x: self._name, "country": lambda x: self._country, "context": lambda x: "blank", "age": lambda x: "25"}
         | self._prompt
         | self._llm
         | StrOutputParser()
