@@ -53,7 +53,7 @@ def chat(person: Person):
     while continue_chat:
         user_input = input("Enter: ")
         if user_input == "exit":
-            continue_chat == False
+            continue_chat = False
         else:
             print(person.respond(user_input))
     

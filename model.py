@@ -23,7 +23,7 @@ class Person:
         self.set_parameters(country)
         self._name = name
 
-        _llm = OctoAIEndpoint(
+        self._llm = OctoAIEndpoint(
         model="meta-llama-3-70b-instruct",
         max_tokens=1024,
         presence_penalty=0,
@@ -54,4 +54,4 @@ class Person:
         | StrOutputParser()
         )
 
-        print(chain.invoke("user_input")) 
+        print(chain.invoke(user_input)) 
