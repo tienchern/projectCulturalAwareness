@@ -11,10 +11,6 @@ from langchain.prompts import ChatPromptTemplate
 load_dotenv()
 OCTOAI_API_TOKEN = os.environ["OCTOAI_API_TOKEN"]
 
-
-
-
-
 class Person:
     _country = None
     _name = None
