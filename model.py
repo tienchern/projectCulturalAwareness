@@ -29,13 +29,12 @@ class Person:
         presence_penalty=0,
         temperature=0.1,
         top_p=0.9,
-        
-    )
+        )
 
     def __str__(self) -> str:
         return self._name
     
-    def set_parameters(self, country: str) {
+    def set_parameters(self, country: str):
         self._country = country
 
         _template = """You are a person from the different culture of {country}. You are {age} years old. You are interacting with the user to teach them about your culture. Be friendly and open, using the provided context as information about your culture.
@@ -43,7 +42,6 @@ class Person:
         Context: {context}
         Answer:"""
         _prompt = ChatPromptTemplate.from_template(template)
-    }
 
     def say_hi() -> str:
         return "Hi there!"
