@@ -1,3 +1,4 @@
+import os
 from model import Person
 import os
 
@@ -5,7 +6,6 @@ people: dict[str: Person]= dict()
 
 
 def main():
-    warnings.filterwarnings("ignore")
 
     continue_program = True
     print("\n" * 100)
@@ -69,6 +69,7 @@ def chat(person: Person):
         user_input = input("Enter: ")
         if user_input == "exit":
             continue_chat = False
+            os.remove("output.jpg")
         else:
             print(person.respond(user_input))
 

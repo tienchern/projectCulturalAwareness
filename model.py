@@ -10,7 +10,9 @@ from dotenv import load_dotenv
 import os
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter, HTMLHeaderTextSplitter
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
+from octoai.util import to_file, from_file
+from octoai.client import OctoAI
 
 import warnings
 
@@ -46,6 +48,10 @@ class Person:
             presence_penalty=0,
             temperature=0.1,
             top_p=0.9,
+        )
+        
+        self._client = OctoAI(
+            api_key= "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNkMjMzOTQ5In0.eyJzdWIiOiIxYzliODgxNy0yMGM5LTRkOTEtODZiYi03ZmIyN2E1Yzk5ZmEiLCJ0eXBlIjoidXNlckFjY2Vzc1Rva2VuIiwidGVuYW50SWQiOiIwMWNkMWI5OS1jNmE3LTQyN2QtYTkzMC1mNjE1OTBlZjA0YTgiLCJ1c2VySWQiOiIxOGQ1ODljMi03OTM0LTQ4YjAtYTdjMi01YmUzZjg5NTFiZDUiLCJhcHBsaWNhdGlvbklkIjoiYTkyNmZlYmQtMjFlYS00ODdiLTg1ZjUtMzQ5NDA5N2VjODMzIiwicm9sZXMiOlsiRkVUQ0gtUk9MRVMtQlktQVBJIl0sInBlcm1pc3Npb25zIjpbIkZFVENILVBFUk1JU1NJT05TLUJZLUFQSSJdLCJhdWQiOiIzZDIzMzk0OS1hMmZiLTRhYjAtYjdlYy00NmY2MjU1YzUxMGUiLCJpc3MiOiJodHRwczovL2lkZW50aXR5Lm9jdG8uYWkiLCJpYXQiOjE3MjE0OTY0NDB9.qGjTuLmTfWFxqsGFHTWpsJlTHPPR-w8ucJfP4LmQwUUaB6NVtg2sI23MukS6WOVcfwsWQIy1NieT2fd0XZKogJ5J1-jySHxcFINUbn6i3V2gBUbtlWeeAPp7_aWTs55utvqANIj5jwcfX9s7jaxZyVstfpsSzb-PdGsI1BBliydRwvKDb_qN6OxAYk985O9KAD2T482nRIs3r_0DdKYaQRa3vgQoEeIZ1lL2tGnWEZtByrtAavmBj7lES7OOcYD8bmQ7DtRSjLAkzNx3wqWTYzuPBvP69QSV2k2DdFRDBt0VuNrFKe7GU4IgWYjqwsl5RMUldRZUhPa37lzq5oPtvg"
         )
 
         self._history = ChatMessageHistory()
@@ -89,7 +95,7 @@ class Person:
 
         with self._mic as source:
             self._r.adjust_for_ambient_noise(source)
-            print("listening")
+            print("\n" * 10 + "listening")
             audio = self._r.listen(source)
             print("done")
 
@@ -99,6 +105,16 @@ class Person:
 
         self._history.add_user_message(user_input)
         self._history.add_ai_message(response)
+        
+        image_resp = ""
+        images = ""
+        image_resp = self._client.image_gen.generate_sdxl(
+            prompt=user_input + '\n' + response
+            )
+        images = image_resp.images
+            
+        
+        to_file(images[0], "output.jpg")
         
         return response
     
