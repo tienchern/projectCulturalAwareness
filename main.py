@@ -2,40 +2,61 @@ from model import Person
 
 # list of different "people"
 people: dict[str: Person]= dict()
-current_person = 0
 
 
-continue_chat = True
+def main():
+
+    continue_program = True
+    print("== DASHBOARD ==")
+    print("Welcome! Here you can chat with different people :D")
+
+    while continue_program == True:
+        print(f"Your current people are: {list(people.keys())}")
+        print(f"""Your options are:
+                \t* quit - terminate the program
+                \t* delete [name] - delete person
+                \t* create [country] [name] - create person
+                \t* chat [name] - chat with person
+            """)
+        user_input = input("Enter: ")
+        match user_input.split():
+            case [action]:
+                if action == "quit":
+                    continue_program = False
+            case [action, name]:
+                if action == "delete":
+                    people.pop(name)
+                elif action == "chat":
+                    if name in people:
+                        chat(people[name])
+                    else:
+                        print("ERROR: person does not exist")
+
+            case [action, *objects]:
+                if action == "create":
+                    new_person = Person(country=objects[0], name=objects[1])
+                    people[objects[1]] = new_person
+
+            case _:
+                print("Command not recognized")
 
 
 
-print("== DASHBOARD ==")
-print("Welcome! Here you can chat with different people :D")
+def chat(person: Person):
+    
+    continue_chat = True
 
-while continue_chat == True:
-    print(f"Your current people are: {list(people.keys())}")
-    print(f"""Your options are:
-            \t* quit - terminate the program
-            \t* delete [name] - delete person
-            \t* create [country] [name] - create person
-            \t* chat [name] - chat with person
-        """)
-    user_input = input("Enter: ")
-    match user_input.split():
-        case [action]:
-            if action == "quit":
-                continue_chat = False
-        case [action, *objects]:
-            if action == "create":
-                new_person = Person(country=objects[0], name=objects[1])
-                people[objects[1]] = new_person
-            if action == "delete":
-                people.pop(objects[0])
-        case _:
-            print("Command not recognized")
+    print(f"== CHAT WITH {str(person).upper()}==")
+    print("Type 'exit' to return to dashboard")
+    print(person.say_hi())
 
-
-
+    while continue_chat:
+        user_input = input("Enter: ")
+        if user_input == "exit":
+            continue_chat == False
+        else:
+            print(person.respond(user_input))
+    
 
 
 
@@ -55,3 +76,7 @@ while continue_chat == True:
 #         continue_chat = False
 #     else:
 #         print(model.respond(user_input)) 
+
+
+if __name__ == "__main__":
+    main()

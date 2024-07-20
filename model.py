@@ -37,20 +37,20 @@ class Person:
     def set_parameters(self, country: str):
         self._country = country
 
-        _template = """You are a person from the different culture of {country}. You are {age} years old. You are interacting with the user to teach them about your culture. Be friendly and open, using the provided context as information about your culture.
+        self._template = """You are a person from the different culture of {country}. You are {age} years old. You are interacting with the user to teach them about your culture. Be friendly and open, using the provided context as information about your culture.
         Question: {question}
         Context: {context}
         Answer:"""
-        _prompt = ChatPromptTemplate.from_template(template)
+        self._prompt = ChatPromptTemplate.from_template(self._template)
 
-    def say_hi() -> str:
+    def say_hi(self) -> str:
         return "Hi there!"
 
-    def respond(user_input: str) -> str:
+    def respond(self, user_input: str) -> str:
         chain = (
-        {"question": RunnablePassthrough(), "country": _country, "age":25, "context": "blank"}
-        | _prompt
-        | _llm
+        {"question": RunnablePassthrough(), "country": self._country, "age":25, "context": "blank"}
+        | self._prompt
+        | self._llm
         | StrOutputParser()
         )
 
