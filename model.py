@@ -1,12 +1,13 @@
-
-
-from dotenv import load_dotenv
-import os
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.embeddings import OctoAIEmbeddings
 from langchain_community.llms.octoai_endpoint import OctoAIEndpoint
-from langchain.prompts import ChatPromptTemplate
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.memory import ChatMessageHistory
+
+from dotenv import load_dotenv
+import os
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter, HTMLHeaderTextSplitter
 from langchain.vectorstores import FAISS
 
@@ -21,18 +22,21 @@ class Person:
     _template = None
     _prompt = None
     _retriever = None
+    _history = None 
 
     def __init__(self, country: str, name: str):
         self.set_parameters(country)
         self._name = name
 
         self._llm = OctoAIEndpoint(
-        model="meta-llama-3-70b-instruct",
-        max_tokens=1024,
-        presence_penalty=0,
-        temperature=0.1,
-        top_p=0.9,
+            model="meta-llama-3-70b-instruct",
+            max_tokens=1024,
+            presence_penalty=0,
+            temperature=0.1,
+            top_p=0.9,
         )
+
+        self._history = ChatMessageHistory()
 
     def __str__(self) -> str:
         return self._name
@@ -41,25 +45,35 @@ class Person:
         self._country = country
 
         self._retriever = get_context(self._country)
-
-        self._template = """You are a person called {name} from the different culture of {country}. You are {age} years old. You are interacting with the user to teach them about your culture. Be friendly and open, using the provided context as information about your culture.
+        self._template = """You are a person called {name} from the different culture of {country}. You are {age} years old. You are interacting with the user to teach them about your culture. Be friendly and open, using the provided context as information about your culture. Additionally, the user may reference earlier conversations so use the provided messages as information about earlier conversations.
         Question: {question}
-        Context: {context}
-        Answer:"""
-        self._prompt = ChatPromptTemplate.from_template(self._template)
+        Context: {context}"""
+
+        self._prompt = ChatPromptTemplate.from_messages([
+            ("system", self._template),
+            MessagesPlaceholder(variable_name="messages"),
+        ])
 
     def say_hi(self) -> str:
         return "Hi there!"
 
     def respond(self, user_input: str) -> str:
         chain = (
-        {"question": RunnablePassthrough(), "name": lambda x: self._name, "country": lambda x: self._country, "context": self._retriever, "age": lambda x: "25"}
-        | self._prompt
-        | self._llm
-        | StrOutputParser()
+            { "question": RunnablePassthrough(),
+              "country": lambda x: self._country,
+              "context": self._retriever,
+              "age": lambda x: "25",
+              "messages": lambda _: self._history.messages,
+              "name": lambda _: self._name } 
+            | self._prompt
+            | self._llm
+            | StrOutputParser()
         )
+        response = chain.invoke(user_input)
+        self._history.add_user_message(user_input)
+        self._history.add_ai_message(response)
 
-        return chain.invoke(user_input)
+        return response
     
 def get_context(country: str):
     url = "https://en.wikipedia.org/wiki/Culture_of_" + country
